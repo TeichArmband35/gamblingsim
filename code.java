@@ -10,6 +10,9 @@ class einarmigerbandit extends Actor {
    boolean amlaufen;
    int anzahl3;
    int geld;
+   int BuffVonWeinflasche = 30;
+   int BuffVonGewonnen = 100;
+
    String bereich;
 
    ArrayList<String> glucksbringer = new ArrayList<>();
@@ -23,21 +26,14 @@ class einarmigerbandit extends Actor {
       glucksbringer.add(glucksbringerZurVerfugung[i]);
    }
 
-void glucksbringerChecker() {
-    if (glucksbringer.isEmpty()) {
-        logString("Keine Glücksbringer zur Verfügung", 1);
-        return;
-    }
+   boolean glucksbringerChecker() {
+      if (glucksbringer.isEmpty()) {
+         // logString("Keine Glücksbringer zur Verfügung", 1);
+         return false;
+      }
 
-    for (int i = 0; i < glucksbringer.size(); i++) {
-        String current = glucksbringer.get(i);
-        if (current.equals(glucksbringerZurVerfugung[0])) {
-            logString("Weinfalsche ist equippt als Glücksbringer", 4);
-        } else if (current.equals(glucksbringerZurVerfugung[1])) {
-            logString("Gewonnen! ist equippt als Glücksbringer", 4);
-        }
-    }
-}
+      return true;
+   }
 
   /*  void mover(int Case) {
       if (amlaufen) return;
@@ -57,15 +53,38 @@ void glucksbringerChecker() {
       bereich = "Automat";
    }
 
-   void spielen(int glucksbringerWertGlocke, int glucksbringerWertKirsche, int glucksbringerWertDiamant, int glucksbringerWertSieben) { 
+   void glucksbringerunddannspielen() {
+      if (amlaufen) return;
+      if (!glucksbringerChecker()) {
+         spielen(0, 0, 0, 0, false);
+         return;
+      } else {
+         int WertFürGlocke = 0;
+         int WertFürKirsche = 0;
+         int WertFürDiamant = 0;
+         int WertFürSieben = 0;
+
+         boolean gewonnendrinnen = false;
+
+         for (int i = 0; i < glucksbringer.size(); i++) {
+            String current = glucksbringer.get(i);
+            if (current.equals(glucksbringerZurVerfugung[0])) {
+               WertFürKirsche = WertFürKirsche + BuffVonWeinflasche;
+            } else if (current.equals(glucksbringerZurVerfugung[1])) {
+               WertFürSieben = WertFürSieben + BuffVonGewonnen;
+               gewonnendrinnen = true;
+            }
+         }
+         spielen(WertFürGlocke, WertFürKirsche, WertFürDiamant, WertFürSieben, gewonnendrinnen);
+      }
+   }
+
+
+   void spielen(int glucksbringerWertGlocke, int glucksbringerWertKirsche, int glucksbringerWertDiamant, int glucksbringerWertSieben, boolean gewonnendrinne) { 
       if (amlaufen) return;
       ArrayList<Integer> slot = new ArrayList<>();  // 1 = Glocke; 2 = Kirsche; 3 = Diamant; 4 = Sieben; 5 = int Overflow
       ArrayList<String> symbole = new ArrayList<>();
       amlaufen = true;
-
-      // Glücksbringer Check
-
-      glucksbringerChecker();
 
       // Glücksbringer
 
@@ -74,11 +93,35 @@ void glucksbringerChecker() {
       int Lkr = 0; // Luck für symbol: Kirsche || 2
       int Ldi = 0; // Luck für symbol: Diamant || 3
 
-
       Lsb = baseluckSieben + glucksbringerWertSieben;
       Lgl = baseluckGlocke + glucksbringerWertGlocke;
       Lkr = baseluckKirsche + glucksbringerWertKirsche;
       Ldi = baseluckDiamant + glucksbringerWertDiamant;
+      
+      println(Lsb + " " + Lgl + " " + Lkr + " " + Ldi);
+
+      // Wenn eine Sache hundert ist = alles andere nicht möglich
+      if (Lgl >= 100) {
+         Lsb = 0; // Luck für symbol: Sieben  || 4
+         Lgl = 100; // Luck für symbol: Glocke|| 1
+         Lkr = 0; // Luck für symbol: Kirsche || 2
+         Ldi = 0; // Luck für symbol: Diamant || 3
+      } else if (Lkr >= 100) {
+         Lsb = 0; // Luck für symbol: Sieben  || 4
+         Lgl = 0; // Luck für symbol: Glocke  || 1
+         Lkr = 100; //Luck für symbol: Kirsche|| 2
+         Ldi = 0; // Luck für symbol: Diamant || 3
+      } else if (Ldi >= 100) {
+         Lsb = 0; // Luck für symbol: Sieben  || 4
+         Lgl = 0; // Luck für symbol: Glocke  || 1
+         Lkr = 0; // Luck für symbol: Kirsche || 2
+         Ldi = 100; // Luck für symbol:Diamant|| 3
+      } else if (Lsb >= 100) {
+         Lsb = 100; // Luck für symbol: Sieben|| 4
+         Lgl = 0; // Luck für symbol: Glocke  || 1
+         Lkr = 0; // Luck für symbol: Kirsche || 2
+         Ldi = 0; // Luck für symbol:Diamant  || 3
+      }
       
 
       // Nach Glücksbringer auswerten
@@ -111,7 +154,8 @@ void glucksbringerChecker() {
          anzahl++;
       }
       
-      // println(slot);
+      // System.out.println(slot);
+      
       for (int i = 1; i <= 3; i++) {
          
          random = (int)(Math.random() * anzahl); // Nach Size des Arrays + 1 rollen
@@ -130,13 +174,12 @@ void glucksbringerChecker() {
             // logString("Symbol: Sieben", 3);
             symbole.add("Sieben");
          } else {
-            // logString("Array Fehler, sl ist nicht 1,2,3 oder 4! sl wird in kürze geloggt", 1);
+            logString("Array Fehler, sl ist nicht 1,2,3 oder 4! sl wird in kürze geloggt", 1);
             logInt(sl, 1);
          }
 
          anzahl3++;
          // println(anzahl3);
-         // println(symbole);
 
          if (anzahl3 == 3) {
             String symbol1 = "";
@@ -158,7 +201,7 @@ void glucksbringerChecker() {
                println(symbol1 + symbol2 + symbol3);
             } else {
                logString("Verloren!", 3);
-               // println("Slot1: " + symbol1 + " Slot2: " + symbol2 + " Slot3: " + symbol3);
+               println(symbol1 + symbol2 + symbol3);
             }
          }
       }
@@ -226,6 +269,6 @@ void glucksbringerChecker() {
 einarmigerbandit b = new einarmigerbandit();
 b.glucksbringerAdden(0);
 while (true) {
-   b.spielen(1, 1, 1, 1);
+   b.glucksbringerunddannspielen();
 }
 
