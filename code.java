@@ -580,6 +580,7 @@ b.glucksbringerAdden(1);
 
 
 
+
 while (true) {
    
    b.rundenReset();
