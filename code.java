@@ -8,7 +8,7 @@ class einarmigerbandit extends Actor {
    int baseluckC60;
    boolean amlaufen = false;
    int anzahl3;
-   int geld;
+   int geld = 69;
    int BuffVonWeinflasche = 30;
    int BuffVonGewonnen = 100;
    int Spins = 0;
@@ -18,6 +18,9 @@ class einarmigerbandit extends Actor {
    int jackpotGewinnFurSieben = 77;
    boolean startsound = true;
    boolean jackbotErreicht = false;
+   String kontostandtext = "Kontostand: " + geld + "£";
+   boolean UpdateText = false;
+   boolean UpdateSpins = false;
 
    String bereich;
 
@@ -236,6 +239,7 @@ class einarmigerbandit extends Actor {
       }
       Thread.sleep(100);
       Spins--;
+      UpdateSpins = true;
       amlaufen = false;
       anzahl3 = 0;
    }
@@ -259,6 +263,8 @@ class einarmigerbandit extends Actor {
          jackbotErreicht = true;
       }
       println("Geld durch Gewinn: " + geld);
+      kontostandtext = "Kontostand: " + geld + "£";
+      UpdateText = true;
    }
 
 
@@ -377,6 +383,25 @@ Headbar.setX(400);
 Headbar.setStyle(true, false);
 Headbar.setFillColor(0xe02525);
 
+//Text: Kontostand
+Text k = new Text();
+// Text: Spins verbleibend
+Text s = new Text();
+s.setText("Verbleibende Spins: 0");
+s.setScale(1);
+s.setY(535);
+s.setX(400);
+s.setStyle(true, false);
+s.setFillColor(0xffffff);
+// Text: INFO
+Text z = new Text();
+z.setText("INFO: Es werden automatisch Spins gekauft, wenn man auf Spin drückt und keine Spins mehr hat");
+z.setScale(0.5);
+z.setY(565);
+z.setX(400);
+z.setStyle(true, false);
+z.setFillColor(0xffffff);
+
 // Button
 Button spin = new Button(355.0, 340.0, 30.0, "SPIN");
 spin.setFillColor(0xffe23e);
@@ -386,7 +411,7 @@ spin.setTextColor(0x000000);
 einarmigerbandit b = new einarmigerbandit();
 
 // GLUCCKSBRINGER ADDEN
- // b.glucksbringerAdden(1);
+// b.glucksbringerAdden(1);
 
 void StartSound() {
    if (!b.startsound) return;
@@ -462,6 +487,41 @@ void RGBehre() {
    cooldwn3 = false;
 }
 
+
+k.setText(b.kontostandtext);
+k.setScale(1);
+k.setY(500);
+k.setX(400);
+k.setStyle(true, false);
+k.setFillColor(0xffffff);
+
+
+boolean cooldwn4 = false; 
+void updateText() {
+   if (cooldwn4) { return; }
+   cooldwn4 = true;
+   k.setText(b.kontostandtext);
+   k.setScale(1);
+   k.setY(500);
+   k.setX(400);
+   Thread.sleep(10);
+   b.UpdateText = false;
+   cooldwn4 = false;
+}
+
+boolean cooldwn5 = false;
+void updateSpins() {
+   if (cooldwn5) { return; }
+   cooldwn5 = true;
+   s.setText("Verbleibende Spins: " + b.Spins);
+   s.setScale(1);
+   s.setY(535);
+   s.setX(400);
+   Thread.sleep(10);
+   b.UpdateSpins = false;
+   cooldwn5 = false;
+}
+
 while (true) {
    if (spin.isDown()) { 
       if (b.Spins <= 0) { 
@@ -469,6 +529,9 @@ while (true) {
          b.Spinskaufen(); 
          println("Spins gekauft!");
          b.startsound = true;
+         b.kontostandtext = "Kontostand: " + b.geld + "£";
+         b.UpdateText = true;
+         b.UpdateSpins = true;
       } else { 
          StartSound(); 
          println("Spins gemacht gamba"); 
@@ -477,6 +540,12 @@ while (true) {
    } 
    if (b.jackbotErreicht) {
       RGBehre();
+   }
+   if (b.UpdateText) {
+      updateText();
+   }
+   if (b.UpdateSpins) {
+      updateSpins();
    }
 }
 
