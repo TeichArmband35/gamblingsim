@@ -240,7 +240,7 @@ class einarmigerbandit extends Actor {
       } else if (s == 4) {
          geld = geld + jackpotGewinnFurSieben;
       }
-      println("Geld durch Gewinn: ", geld);
+      println("Geld durch Gewinn: "+ geld);
    }
 
 
@@ -322,16 +322,6 @@ background.setHeight(300);
 background.setX(400);// um so größer desto weiter links
 background.setY(250);// um so größer desto weiter unten
 background.setFillColor(0x272525); //background color chooser
-
-/*unterer Reiter mit Basisinformationen
-RoundedRectangle statistics = new RoundedRectangle();
-statistics.setWidth(500);
-statistics.setHeight(150);
-statistics.setY(300);
-statistics.setX(400);
-statistics.setFillColor(0xffd000);
-*/
-
 
 //Slot 1
 Rectangle Slot1 = new Rectangle();
