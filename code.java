@@ -21,7 +21,7 @@ class einarmigerbandit extends Actor {
    int rundenGeld;
    boolean startsound = true;
    boolean jackbotErreicht = false;
-   String kontostandtext = "Kontostand: " + geld + "£";
+   String kontostandtext = "Kontostand: "+ "£"+ geld;
    boolean UpdateText = false;
    boolean UpdateSpins = false;
    boolean kraterEingeschlagen = false;
@@ -98,20 +98,22 @@ class einarmigerbandit extends Actor {
                         kraterEingeschlagen2 = true;
                         UpdateText = true;
                         println("[DEBUG] Krater hat doppelt eingeschlagen");
-                     }else {
-                        kraterEingeschlagen2 = true;
+                        Spins = 0;
+                     } else {
                         println("[DEBUG] Krater nicht nochmal eing");
+                        kraterEingeschlagen2 = false;
                      }
                      
                   }else {
 
                      if (Spins > 1) {
-                        if (Krater_random == 5) {
+                        if (Krater_random >= 4) {
                            WertFürSieben = WertFürSieben + BuffVonGewonnen;
                            kraterEingeschlagen = true;
                         }
                      }else {
                         WertFürSieben = WertFürSieben + BuffVonGewonnen;
+                        kraterEingeschlagen = true;
                      }
 
                   }
@@ -138,6 +140,7 @@ class einarmigerbandit extends Actor {
 
    void spielen(int glucksbringerWertGlocke, int glucksbringerWertKirsche, int glucksbringerWertDiamant, int glucksbringerWertSieben, boolean gewonnendrinne) { 
       if (amlaufen) return;
+      Thread.sleep(250);
       ArrayList<Integer> slot = new ArrayList<>();  // 1 = Glocke; 2 = Kirsche; 3 = Diamant; 4 = Sieben; 5 = int Overflow
       ArrayList<String> symbole = new ArrayList<>();
       amlaufen = true;
@@ -272,9 +275,9 @@ class einarmigerbandit extends Actor {
             }
          }
       }
-      Thread.sleep(100);
       Spins--;
       UpdateSpins = true;
+      Thread.sleep(250);
       amlaufen = false;
       anzahl3 = 0;
    }
@@ -301,14 +304,12 @@ class einarmigerbandit extends Actor {
          rundenGeld = rundenGeld + jackpotGewinnFurSieben;
          jackbotErreicht = true;
       }
-      println("Geld durch Gewinn: " + geld);
-      kontostandtext = "Kontostand: " + geld + "£";
-      
+      println("Geld durch Gewinn: " + geld);    
       UpdateText = true;
    }
 
    void rundenReset() {
-      if (Spins == 0) {
+      if (Spins <= 0) {
          kraterEingeschlagen = false;
          kraterEingeschlagen2 = false;
          rundenGeld = 0;
@@ -550,6 +551,7 @@ boolean cooldwn4 = false;
 void updateText() {
    if (cooldwn4) { return; }
    cooldwn4 = true;
+   b.kontostandtext = "Kontostand: " + "£" + b.geld;
    k.setText(b.kontostandtext);
    k.setScale(1);
    k.setY(500);
@@ -578,12 +580,50 @@ void updateSpins() {
 b.glucksbringerAdden(1);
 
 
+void SagenSieEsNichtDochIchSageTrier_Sound() {
+   int i = 0;
+   while (i <= 10) {
+      i++;
+      Sound.playSound(Sound.pong_f);
+      Thread.sleep(500);
+      Sound.playSound(Sound.pong_d);
+      Thread.sleep(500);
+   }
+    
+}
+boolean cooldwn6 = false;
+void SagenSieEsNichtDochIchSageTrier_Animation() {
+   if (cooldwn6) { return; }
+   cooldwn6 = true;
+   Headbar.setText("SO! DER RAUS, KRIEGT KEIN GELD");
+   Headbar.setScale(1);
+   Headbar.setY(140);
+   Headbar.setX(400);
+   Headbar.setFillColor(0xe02525);
+   int i = 0;
+   while (i <= 10) {
+      i++;
+      Sound.playSound(Sound.pong_f);
+      background.setFillColor(0xe02525);
+      Headbar.setFillColor(0x272525);
+      Thread.sleep(400);
+      Sound.playSound(Sound.pong_d);
+      Headbar.setFillColor(0xe02525);
+      background.setFillColor(0x272525);
+      Thread.sleep(400);
+   }
+   Headbar.setText("SLOT");
+   Headbar.setScale(2);
+   Headbar.setY(140);
+   Headbar.setX(400);
+   Headbar.setFillColor(0xe02525);
+   background.setFillColor(0x272525);
+   Thread.sleep(250);
+   cooldwn6 = false;
 
-
+}
 
 while (true) {
-   
-   b.rundenReset();
    
    if (spin.isDown()) { 
       if (b.Spins <= 0) { 
@@ -591,9 +631,10 @@ while (true) {
          b.Spinskaufen(); 
          println("Spins gekauft!");
          b.startsound = true;
-         b.kontostandtext = "Kontostand: " + b.geld + "£";
+         b.kontostandtext = "Kontostand: " + "£" + b.geld;
          b.UpdateText = true;
          b.UpdateSpins = true;
+         b.rundenReset();
       } else { 
          StartSound(); 
          println("Spins gemacht gamba"); 
@@ -608,5 +649,11 @@ while (true) {
    }
    if (b.UpdateSpins) {
       updateSpins();
+   }
+   if (b.Spins < 0 || b.kraterEingeschlagen2) {
+      b.Spins = 0;
+      b.UpdateSpins = true;
+      b.rundenReset();
+      SagenSieEsNichtDochIchSageTrier_Animation();
    }
 }
