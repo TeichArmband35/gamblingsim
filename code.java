@@ -16,12 +16,16 @@ class einarmigerbandit extends Actor {
    int jackpotGewinnFurGlocke = 28;
    int jackpotGewinnFurDiamant = 42;
    int jackpotGewinnFurSieben = 77;
+   int Krater_random;
+   int Krater_verloren_random;
+   int rundenGeld;
    boolean startsound = true;
    boolean jackbotErreicht = false;
    String kontostandtext = "Kontostand: " + geld + "£";
    boolean UpdateText = false;
    boolean UpdateSpins = false;
-
+   boolean kraterEingeschlagen = false;
+   boolean kraterEingeschlagen2 = false;
    String bereich;
 
    ArrayList<String> glucksbringer = new ArrayList<>();
@@ -80,7 +84,38 @@ class einarmigerbandit extends Actor {
             if (current.equals(glucksbringerZurVerfugung[0])) {
                WertFürKirsche = WertFürKirsche + BuffVonWeinflasche;
             } else if (current.equals(glucksbringerZurVerfugung[1])) {
-               WertFürSieben = WertFürSieben + BuffVonGewonnen;
+               
+               Krater_random = (int)(Math.random() * 6);
+               Krater_verloren_random = (int)(Math.random() * 2);
+               
+               
+               if (!kraterEingeschlagen2) {
+                  if (kraterEingeschlagen) {
+                  
+                     if (Krater_verloren_random == 1) {
+                        geld = geld - rundenGeld;
+                        rundenGeld = 0;
+                        kraterEingeschlagen2 = true;
+                        UpdateText = true;
+                        println("[DEBUG] Krater hat doppelt eingeschlagen");
+                     }else {
+                        kraterEingeschlagen2 = true;
+                        println("[DEBUG] Krater nicht nochmal eing");
+                     }
+                     
+                  }else {
+
+                     if (Spins > 1) {
+                        if (Krater_random == 5) {
+                           WertFürSieben = WertFürSieben + BuffVonGewonnen;
+                           kraterEingeschlagen = true;
+                        }
+                     }else {
+                        WertFürSieben = WertFürSieben + BuffVonGewonnen;
+                     }
+
+                  }
+               }
                gewonnendrinnen = true;
             } 
          }
@@ -251,20 +286,33 @@ class einarmigerbandit extends Actor {
    void JackpotAdden(int s) {
       if (s == 1) {
          geld = geld + jackpotGewinnFurGlocke;
+         rundenGeld = rundenGeld + jackpotGewinnFurGlocke;
          WonSound();
       } else if (s == 2) {
          geld = geld + jackpotGewinnFurKirsche;
+         rundenGeld = rundenGeld + jackpotGewinnFurKirsche;
          WonSound();
       } else if (s == 3) {
          geld = geld + jackpotGewinnFurDiamant;
+         rundenGeld = rundenGeld + jackpotGewinnFurDiamant;
          jackbotErreicht = true;
       } else if (s == 4) {
          geld = geld + jackpotGewinnFurSieben;
+         rundenGeld = rundenGeld + jackpotGewinnFurSieben;
          jackbotErreicht = true;
       }
       println("Geld durch Gewinn: " + geld);
       kontostandtext = "Kontostand: " + geld + "£";
+      
       UpdateText = true;
+   }
+
+   void rundenReset() {
+      if (Spins == 0) {
+         kraterEingeschlagen = false;
+         kraterEingeschlagen2 = false;
+         rundenGeld = 0;
+      }
    }
 
 
@@ -336,6 +384,8 @@ class einarmigerbandit extends Actor {
          cooldwn2 = false;
       }
    }
+
+
 
 }
 
@@ -522,7 +572,18 @@ void updateSpins() {
    cooldwn5 = false;
 }
 
+
+
+
+b.glucksbringerAdden(1);
+
+
+
+
 while (true) {
+   
+   b.rundenReset();
+   
    if (spin.isDown()) { 
       if (b.Spins <= 0) { 
          BuySound(); 
@@ -548,6 +609,3 @@ while (true) {
       updateSpins();
    }
 }
-
-
-
