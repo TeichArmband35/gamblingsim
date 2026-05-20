@@ -1,5 +1,4 @@
 
-
 class einarmigerbandit extends Actor {
    int baseluckGlocke;
    int baseluckKirsche;
@@ -7,7 +6,7 @@ class einarmigerbandit extends Actor {
    int baseluckSieben;
    int baseluckC18H24O2;
    int baseluckC60;
-   boolean amlaufen;
+   boolean amlaufen = false;
    int anzahl3;
    int geld;
    int BuffVonWeinflasche = 30;
@@ -17,6 +16,8 @@ class einarmigerbandit extends Actor {
    int jackpotGewinnFurGlocke = 28;
    int jackpotGewinnFurDiamant = 42;
    int jackpotGewinnFurSieben = 77;
+   boolean startsound = true;
+   boolean jackbotErreicht = false;
 
    String bereich;
 
@@ -50,10 +51,10 @@ class einarmigerbandit extends Actor {
    } */
 
    einarmigerbandit() {
-      baseluckGlocke = 15;
-      baseluckKirsche = 20;
-      baseluckDiamant = 12;
-      baseluckSieben = 8;
+      baseluckGlocke = 25;
+      baseluckKirsche = 35;
+      baseluckDiamant = 20;
+      baseluckSieben = 15;
       geld = 69;
       bereich = "Automat";
    }
@@ -84,6 +85,18 @@ class einarmigerbandit extends Actor {
       }
    }
 
+
+   void LostSound() {
+      Sound.playSound(Sound.pong_f); Thread.sleep(150);
+      Sound.playSound(Sound.pong_d); Thread.sleep(250);
+      Sound.playSound(Sound.pong_d); Thread.sleep(400);
+   }
+
+   void WonSound() {
+      Sound.playSound(Sound.pong_d); Thread.sleep(150);
+      Sound.playSound(Sound.pong_d); Thread.sleep(250);
+      Sound.playSound(Sound.pong_f); Thread.sleep(400);
+   }
 
    void spielen(int glucksbringerWertGlocke, int glucksbringerWertKirsche, int glucksbringerWertDiamant, int glucksbringerWertSieben, boolean gewonnendrinne) { 
       if (amlaufen) return;
@@ -217,10 +230,11 @@ class einarmigerbandit extends Actor {
             } else {
                logString("Verloren!", 3);
                println(symbol1 + symbol2 + symbol3);
+               LostSound();
             }
          }
       }
-      Thread.sleep(1000);
+      Thread.sleep(100);
       Spins--;
       amlaufen = false;
       anzahl3 = 0;
@@ -233,14 +247,18 @@ class einarmigerbandit extends Actor {
    void JackpotAdden(int s) {
       if (s == 1) {
          geld = geld + jackpotGewinnFurGlocke;
+         WonSound();
       } else if (s == 2) {
          geld = geld + jackpotGewinnFurKirsche;
+         WonSound();
       } else if (s == 3) {
          geld = geld + jackpotGewinnFurDiamant;
+         jackbotErreicht = true;
       } else if (s == 4) {
          geld = geld + jackpotGewinnFurSieben;
+         jackbotErreicht = true;
       }
-      println("Geld durch Gewinn: "+ geld);
+      println("Geld durch Gewinn: " + geld);
    }
 
 
@@ -366,10 +384,101 @@ spin.setBorderColor(0xffe23e);
 spin.setTextColor(0x000000);
 
 einarmigerbandit b = new einarmigerbandit();
-b.glucksbringerAdden(0);
+
+// GLUCCKSBRINGER ADDEN
+ // b.glucksbringerAdden(1);
+
+void StartSound() {
+   if (!b.startsound) return;
+
+    // Auftakt: schnelle Vorschläge
+   Sound.playSound(Sound.pong_d); Thread.sleep(150);
+   Sound.playSound(Sound.pong_d); Thread.sleep(150);
+
+    // Hauptthema
+   Sound.playSound(Sound.pong_f); Thread.sleep(300);
+   Sound.playSound(Sound.pong_d); Thread.sleep(200);
+   Sound.playSound(Sound.pong_f); Thread.sleep(300);
+   Sound.playSound(Sound.pong_f); Thread.sleep(500); // betont
+
+    // Abschluss
+   Sound.playSound(Sound.pong_d); Thread.sleep(200);
+   Sound.playSound(Sound.pong_f); Thread.sleep(600); // langer Schluss
+
+   b.startsound = false;
+}
+
+void BuySound() {
+    // Kurzes positives Pling
+   Sound.playSound(Sound.pong_d); Thread.sleep(150);
+   Sound.playSound(Sound.pong_f); Thread.sleep(250);
+   Sound.playSound(Sound.pong_f); Thread.sleep(400);
+}
+
+boolean cooldwn3;
+
+void WonSound2() {
+   int i = 0;
+   while (i <= 50) {
+      i++;
+      Sound.playSound(Sound.pong_f);
+      Thread.sleep(1);
+      Sound.playSound(Sound.digging);
+   }
+   Sound.playSound(Sound.flamethrower);
+}
+
+void RGBehre() {
+   if (cooldwn3) { return; }
+   int i = 0;
+   Headbar.setText("JACKPOT!");
+   Headbar.setScale(2.5);
+   Headbar.setY(130);
+   Headbar.setX(400);
+   while (i <= 50) {
+      background.setFillColor(0x1eff00);
+      Headbar.setFillColor(0x3300ff);
+      Thread.sleep(1);
+      background.setFillColor(0xff0000);
+      Headbar.setFillColor(0x1eff00);
+      Thread.sleep(1);
+      background.setFillColor(0x3300ff);
+      Headbar.setFillColor(0xff0000);
+      Sound.playSound(Sound.pong_f);
+      Sound.playSound(Sound.digging);
+      i++;
+   }
+   Sound.playSound(Sound.flamethrower);
+   background.setFillColor(0x1eff00);
+   Headbar.setFillColor(0x1eff00);
+   Thread.sleep(50);
+   background.setFillColor(0x272525);
+   Headbar.setFillColor(0xe02525);
+   Headbar.setText("SLOT");
+   Headbar.setScale(2);
+   Headbar.setY(140);
+   Headbar.setX(400);
+   b.jackbotErreicht = false;
+   cooldwn3 = false;
+}
 
 while (true) {
-   if (spin.isDown()) { if (b.Spins <= 0) { b.Spinskaufen(); println("Spins gekauft!"); } else { println("Spins gemacht gamba"); b.glucksbringerunddannspielen(); } } 
+   if (spin.isDown()) { 
+      if (b.Spins <= 0) { 
+         BuySound(); 
+         b.Spinskaufen(); 
+         println("Spins gekauft!");
+         b.startsound = true;
+      } else { 
+         StartSound(); 
+         println("Spins gemacht gamba"); 
+         b.glucksbringerunddannspielen();
+      }
+   } 
+   if (b.jackbotErreicht) {
+      RGBehre();
+   }
 }
+
 
 
