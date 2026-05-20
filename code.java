@@ -12,6 +12,11 @@ class einarmigerbandit extends Actor {
    int geld;
    int BuffVonWeinflasche = 30;
    int BuffVonGewonnen = 100;
+   int Spins = 0;
+   int jackpotGewinnFurKirsche = 15;
+   int jackpotGewinnFurGlocke = 28;
+   int jackpotGewinnFurDiamant = 42;
+   int jackpotGewinnFurSieben = 77;
 
    String bereich;
 
@@ -22,7 +27,7 @@ class einarmigerbandit extends Actor {
    };
 
    void glucksbringerAdden(int i) {
-      if (i < 0 || glucksbringerZurVerfugung.length < i) { logString("Falscher Index bei Array", 1); }
+      if (i < 0 || glucksbringerZurVerfugung.length < i) { logString("Falscher Index bei Array", 1); return; }
       glucksbringer.add(glucksbringerZurVerfugung[i]);
    }
 
@@ -73,7 +78,7 @@ class einarmigerbandit extends Actor {
             } else if (current.equals(glucksbringerZurVerfugung[1])) {
                WertFürSieben = WertFürSieben + BuffVonGewonnen;
                gewonnendrinnen = true;
-            }
+            } 
          }
          spielen(WertFürGlocke, WertFürKirsche, WertFürDiamant, WertFürSieben, gewonnendrinnen);
       }
@@ -199,6 +204,16 @@ class einarmigerbandit extends Actor {
             if (symbol1 == symbol2 && symbol1 == symbol3) {
                logString("Gewonnen!", 3);
                println(symbol1 + symbol2 + symbol3);
+               if (symbol1 == "Kirsche") {
+                  JackpotAdden(2);
+               } else if (symbol1 == "Glocke") {
+                  JackpotAdden(1);
+               } else if (symbol1 == "Diamant") {
+                  JackpotAdden(3);
+               } else if (symbol1 == "Sieben") {
+                  JackpotAdden(4);
+               }
+
             } else {
                logString("Verloren!", 3);
                println(symbol1 + symbol2 + symbol3);
@@ -206,12 +221,26 @@ class einarmigerbandit extends Actor {
          }
       }
       Thread.sleep(1000);
+      Spins--;
       amlaufen = false;
       anzahl3 = 0;
    }
 
    LocalDateTime datum() {
       return LocalDateTime.now();
+   }
+
+   void JackpotAdden(int s) {
+      if (s == 1) {
+         geld = geld + jackpotGewinnFurGlocke;
+      } else if (s == 2) {
+         geld = geld + jackpotGewinnFurKirsche;
+      } else if (s == 3) {
+         geld = geld + jackpotGewinnFurDiamant;
+      } else if (s == 4) {
+         geld = geld + jackpotGewinnFurSieben;
+      }
+      println("Geld durch Gewinn: ", geld);
    }
 
 
@@ -264,11 +293,93 @@ class einarmigerbandit extends Actor {
       }
    }
 
+   boolean cooldwn2;
+   void Spinskaufen() {
+      if (!cooldwn2) {
+         cooldwn2 = true;
+         if (geld >= 7) {
+            for (int i = 0; i <= 6; i++) {
+               Spins++;
+               geld--;
+            }
+         } else { logString("Game Over fah", 1); }
+   
+      
+
+         logInt(Spins, 3);
+         logInt(geld, 3);
+         Thread.sleep(1000);
+         cooldwn2 = false;
+      }
+   }
+
 }
+
+// Background vom der Maschiene
+RoundedRectangle background = new RoundedRectangle();
+background.setWidth(500);
+background.setHeight(300);
+background.setX(400);// um so größer desto weiter links
+background.setY(250);// um so größer desto weiter unten
+background.setFillColor(0x272525); //background color chooser
+
+/*unterer Reiter mit Basisinformationen
+RoundedRectangle statistics = new RoundedRectangle();
+statistics.setWidth(500);
+statistics.setHeight(150);
+statistics.setY(300);
+statistics.setX(400);
+statistics.setFillColor(0xffd000);
+*/
+
+
+//Slot 1
+Rectangle Slot1 = new Rectangle();
+Slot1.setBorderColor("black");
+Slot1.setFillColor(0xffffff);
+Slot1.setHeight(170);
+Slot1.setWidth(120);
+Slot1.setX(250);
+Slot1.setY(250);
+
+//Slot 2
+Rectangle Slot2 = new Rectangle();
+Slot2.setBorderColor("black");
+Slot2.setFillColor(0xffffff);
+Slot2.setHeight(170);
+Slot2.setWidth(120);
+Slot2.setX(400);
+Slot2.setY(250);
+
+//Slot 3
+Rectangle Slot3 = new Rectangle();
+Slot3.setBorderColor("black");
+Slot3.setFillColor(0xffffff);
+Slot3.setHeight(170);
+Slot3.setWidth(120);
+Slot3.setX(550);
+Slot3.setY(250); 
+
+//Text: SLOT
+Text Headbar = new Text();
+Headbar.setText("SLOT");
+Headbar.setScale(2);
+Headbar.setY(140);
+Headbar.setX(400);
+Headbar.setStyle(true, false);
+Headbar.setFillColor(0xe02525);
+
+// Button
+Button spin = new Button(355.0, 340.0, 30.0, "SPIN");
+spin.setFillColor(0xffe23e);
+spin.setBorderColor(0xffe23e);
+spin.setTextColor(0x000000);
 
 einarmigerbandit b = new einarmigerbandit();
 b.glucksbringerAdden(0);
+
 while (true) {
-   b.glucksbringerunddannspielen();
+   if (spin.isDown()) { if (b.Spins <= 0) { b.Spinskaufen(); println("Spins gekauft!"); } else { println("Spins gemacht gamba"); b.glucksbringerunddannspielen(); } } 
 }
+
 
