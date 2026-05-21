@@ -8,7 +8,7 @@ class einarmigerbandit extends Actor {
    int baseluckC60;
    boolean amlaufen = false;
    int anzahl3;
-   int geld = 69;
+   double geld = 69;
    int BuffVonWeinflasche = 30;
    int BuffVonGewonnen = 100;
    int Spins = 0;
@@ -21,7 +21,7 @@ class einarmigerbandit extends Actor {
    int rundenGeld;
    boolean startsound = true;
    boolean jackbotErreicht = false;
-   String kontostandtext = "Kontostand: "+ "£"+ geld;
+   String kontostandtext = "Kontostand: " + "£" + geld;
    boolean UpdateText = false;
    boolean UpdateSpins = false;
    boolean kraterEingeschlagen = false;
@@ -304,16 +304,15 @@ class einarmigerbandit extends Actor {
          rundenGeld = rundenGeld + jackpotGewinnFurSieben;
          jackbotErreicht = true;
       }
-      println("Geld durch Gewinn: " + geld);    
+      println("Geld durch Gewinn: " + geld); 
       UpdateText = true;
    }
 
    void rundenReset() {
-      if (Spins <= 0) {
          kraterEingeschlagen = false;
          kraterEingeschlagen2 = false;
          rundenGeld = 0;
-      }
+      
    }
 
 
@@ -379,8 +378,7 @@ class einarmigerbandit extends Actor {
    
       
 
-         logInt(Spins, 3);
-         logInt(geld, 3);
+
          Thread.sleep(1000);
          cooldwn2 = false;
       }
@@ -621,6 +619,44 @@ void SagenSieEsNichtDochIchSageTrier_Animation() {
    Thread.sleep(250);
    cooldwn6 = false;
 
+}
+
+// Sound für Glücksbringer eingesetzt:
+/* 
+
+   Sound.playSound(Sound.short_shoot);
+   Sound.playSound(Sound.pong_f);
+   int i = 0;
+   while (i <= 3) { 
+      i++;
+      Thread.sleep(1); 
+      Sound.playSound(Sound.digging);
+   }
+
+*/
+
+void glucksbringerEingesetztAN(String g) {
+   Headbar.setText(g + " wurde eingesetzt");
+   Headbar.setScale(1);
+   Headbar.setY(140);
+   Headbar.setX(400);
+   Headbar.setFillColor(0x272525);
+   background.setFillColor(0xffb300);
+   Sound.playSound(Sound.short_shoot);
+   Sound.playSound(Sound.pong_f);
+   int i = 0;
+   while (i <= 3) { 
+      i++;
+      Thread.sleep(1);
+      Sound.playSound(Sound.digging);
+   }
+   Thread.sleep(1500);
+   Headbar.setFillColor(0xe02525);
+   background.setFillColor(0x272525);
+   Headbar.setText("SLOT");
+   Headbar.setScale(2);
+   Headbar.setY(140);
+   Headbar.setX(400);
 }
 
 while (true) {
