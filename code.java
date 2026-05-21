@@ -26,12 +26,16 @@ class einarmigerbandit extends Actor {
    boolean UpdateSpins = false;
    boolean kraterEingeschlagen = false;
    boolean kraterEingeschlagen2 = false;
+   boolean kraterEingeschlagen3 = false;
    String bereich;
+   int anzahlDerGewinne = 0;
+   boolean DyatlowCarried = false;
 
    ArrayList<String> glucksbringer = new ArrayList<>();
    String glucksbringerZurVerfugung[] = {
       "Weinfalsche",
-      "Gewonnen!"
+      "Gewonnen!",
+      "Dyatlow"
    };
 
    void glucksbringerAdden(int i) {
@@ -110,16 +114,20 @@ class einarmigerbandit extends Actor {
                         if (Krater_random >= 4) {
                            WertFürSieben = WertFürSieben + BuffVonGewonnen;
                            kraterEingeschlagen = true;
+                           kraterEingeschlagen3 = true;
                         }
                      }else {
                         WertFürSieben = WertFürSieben + BuffVonGewonnen;
-                        kraterEingeschlagen = true;
                      }
 
                   }
                }
                gewonnendrinnen = true;
-            } 
+            } else if (current.equals(glucksbringerZurVerfugung[2])) {
+               if (Spins <= 1 && (anzahlDerGewinne <= 2 || kraterEingeschlagen2)) {
+                  DyatlowCarried = true;
+               }
+            }
          }
          spielen(WertFürGlocke, WertFürKirsche, WertFürDiamant, WertFürSieben, gewonnendrinnen);
       }
@@ -304,15 +312,15 @@ class einarmigerbandit extends Actor {
          rundenGeld = rundenGeld + jackpotGewinnFurSieben;
          jackbotErreicht = true;
       }
-      println("Geld durch Gewinn: " + geld); 
+      anzahlDerGewinne++;
       UpdateText = true;
    }
 
    void rundenReset() {
-         kraterEingeschlagen = false;
-         kraterEingeschlagen2 = false;
-         rundenGeld = 0;
-      
+      kraterEingeschlagen = false;
+      kraterEingeschlagen2 = false;
+      rundenGeld = 0;
+      Thread.sleep(100);
    }
 
 
@@ -532,6 +540,7 @@ void RGBehre() {
    Headbar.setScale(2);
    Headbar.setY(140);
    Headbar.setX(400);
+   Thread.sleep(550);
    b.jackbotErreicht = false;
    cooldwn3 = false;
 }
@@ -577,6 +586,8 @@ void updateSpins() {
 
 b.glucksbringerAdden(1);
 
+b.glucksbringerAdden(2);
+
 
 void SagenSieEsNichtDochIchSageTrier_Sound() {
    int i = 0;
@@ -610,6 +621,9 @@ void SagenSieEsNichtDochIchSageTrier_Animation() {
       background.setFillColor(0x272525);
       Thread.sleep(400);
    }
+   background.setFillColor(0xe02525);
+   Headbar.setFillColor(0x272525);
+   Thread.sleep(1000);
    Headbar.setText("SLOT");
    Headbar.setScale(2);
    Headbar.setY(140);
@@ -618,7 +632,6 @@ void SagenSieEsNichtDochIchSageTrier_Animation() {
    background.setFillColor(0x272525);
    Thread.sleep(250);
    cooldwn6 = false;
-
 }
 
 // Sound für Glücksbringer eingesetzt:
@@ -659,6 +672,7 @@ void glucksbringerEingesetztAN(String g) {
    Headbar.setX(400);
 }
 
+
 while (true) {
    
    if (spin.isDown()) { 
@@ -671,8 +685,8 @@ while (true) {
          b.UpdateText = true;
          b.UpdateSpins = true;
          b.rundenReset();
-      } else { 
          StartSound(); 
+      } else { 
          println("Spins gemacht gamba"); 
          b.glucksbringerunddannspielen();
       }
@@ -686,10 +700,22 @@ while (true) {
    if (b.UpdateSpins) {
       updateSpins();
    }
-   if (b.Spins < 0 || b.kraterEingeschlagen2) {
+   if (b.kraterEingeschlagen3) {
+      b.kraterEingeschlagen3 = false;
+      glucksbringerEingesetztAN("Gewonnen!");
+   }
+   if (b.kraterEingeschlagen2) {
       b.Spins = 0;
       b.UpdateSpins = true;
       b.rundenReset();
       SagenSieEsNichtDochIchSageTrier_Animation();
+   }
+   if (b.DyatlowCarried == true) {
+      b.DyatlowCarried = false;
+      b.geld = b.geld + 3.6;
+      b.UpdateText = true;
+      glucksbringerEingesetztAN("Dyatlow");
+      b.anzahlDerGewinne = 0;
+      
    }
 }
