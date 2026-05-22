@@ -8,7 +8,7 @@ class einarmigerbandit extends Actor {
    int baseluckC60;
    boolean amlaufen = false;
    int anzahl3;
-   double geld = 69;
+   float geld = 69;
    int BuffVonWeinflasche = 30;
    int BuffVonGewonnen = 100;
    int Spins = 0;
@@ -27,15 +27,20 @@ class einarmigerbandit extends Actor {
    boolean kraterEingeschlagen = false;
    boolean kraterEingeschlagen2 = false;
    boolean kraterEingeschlagen3 = false;
+   int zeroKelvinSlot = 0;
+   boolean ZeroKelvinVerwendet = false;
+   boolean ZeroKelvinVerwendet2 = false;
    String bereich;
    int anzahlDerGewinne = 0;
    boolean DyatlowCarried = false;
+   boolean ZeroKelvinBereit = false;
 
    ArrayList<String> glucksbringer = new ArrayList<>();
    String glucksbringerZurVerfugung[] = {
       "Weinfalsche",
       "Gewonnen!",
-      "Dyatlow"
+      "Dyatlow",
+      "0 Kelvin"
    };
 
    void glucksbringerAdden(int i) {
@@ -81,7 +86,7 @@ class einarmigerbandit extends Actor {
          int WertFürDiamant = 0;
          int WertFürSieben = 0;
 
-         boolean gewonnendrinnen = false;
+         boolean kelvindrinnen = false;
 
          for (int i = 0; i < glucksbringer.size(); i++) {
             String current = glucksbringer.get(i);
@@ -122,14 +127,15 @@ class einarmigerbandit extends Actor {
 
                   }
                }
-               gewonnendrinnen = true;
             } else if (current.equals(glucksbringerZurVerfugung[2])) {
                if (Spins <= 1 && (anzahlDerGewinne <= 2 || kraterEingeschlagen2)) {
                   DyatlowCarried = true;
                }
+            } else if (current.equals(glucksbringerZurVerfugung[3])) {
+               kelvindrinnen = true;
             }
          }
-         spielen(WertFürGlocke, WertFürKirsche, WertFürDiamant, WertFürSieben, gewonnendrinnen);
+         spielen(WertFürGlocke, WertFürKirsche, WertFürDiamant, WertFürSieben, kelvindrinnen);
       }
    }
 
@@ -146,8 +152,13 @@ class einarmigerbandit extends Actor {
       Sound.playSound(Sound.pong_f); Thread.sleep(400);
    }
 
-   void spielen(int glucksbringerWertGlocke, int glucksbringerWertKirsche, int glucksbringerWertDiamant, int glucksbringerWertSieben, boolean gewonnendrinne) { 
+   String letztesSymbol1 = "";
+   String letztesSymbol2 = "";
+   String letztesSymbol3 = "";
+   void spielen(int glucksbringerWertGlocke, int glucksbringerWertKirsche, int glucksbringerWertDiamant, int glucksbringerWertSieben, boolean kelvindrinnen) { 
       if (amlaufen) return;
+      int r = (int)(Math.random() * 4);
+      int r2 = (int)(Math.random() * 100);
       Thread.sleep(250);
       ArrayList<Integer> slot = new ArrayList<>();  // 1 = Glocke; 2 = Kirsche; 3 = Diamant; 4 = Sieben; 5 = int Overflow
       ArrayList<String> symbole = new ArrayList<>();
@@ -223,6 +234,10 @@ class einarmigerbandit extends Actor {
       
       // System.out.println(slot);
       
+      String symbol1 = "";
+      String symbol2 = "";
+      String symbol3 = "";
+
       for (int i = 1; i <= 3; i++) {
          
          random = (int)(Math.random() * anzahl); // Nach Size des Arrays + 1 rollen
@@ -243,15 +258,14 @@ class einarmigerbandit extends Actor {
          } else {
             logString("Array Fehler, sl ist nicht 1,2,3 oder 4! sl wird in kürze geloggt", 1);
             logInt(sl, 1);
+            amlaufen = false;
+            return;
          }
 
          anzahl3++;
          // println(anzahl3);
 
          if (anzahl3 == 3) {
-            String symbol1 = "";
-            String symbol2 = "";
-            String symbol3 = "";
             
             for (int i = 1; i <= 3; i++) {
                if (i == 1) {
@@ -263,6 +277,32 @@ class einarmigerbandit extends Actor {
                }
                
             }
+
+            if (kelvindrinnen && Spins > 1 && Spins < 7) {
+               if (ZeroKelvinBereit) { 
+                  if (r == 1 && letztesSymbol1.length() > 0) {
+                     symbol1 = letztesSymbol1;
+                     zeroKelvinSlot = 1;
+                  } else if (r == 2 && letztesSymbol2.length() > 0) {
+                     symbol2 = letztesSymbol2;
+                     zeroKelvinSlot = 2;
+                  } else if (r == 3 && letztesSymbol3.length() > 0) {
+                     symbol3 = letztesSymbol3;
+                     zeroKelvinSlot = 3;
+                  }
+                  ZeroKelvinBereit = false;
+                  ZeroKelvinVerwendet = true;
+                  println(symbol1 + symbol2 + symbol3 + letztesSymbol1 + letztesSymbol2 + letztesSymbol3);
+               } else {
+                  println(ZeroKelvinVerwendet + " " + r2 + " " + r);
+                  if (r2 <= 15 && !ZeroKelvinVerwendet) { 
+                     ZeroKelvinBereit = true;
+                     println(symbol1 + symbol2 + symbol3 + letztesSymbol1 + letztesSymbol2 + letztesSymbol3);
+                  }
+               }
+            }
+            
+
             if (symbol1 == symbol2 && symbol1 == symbol3) {
                logString("Gewonnen!", 3);
                println(symbol1 + symbol2 + symbol3);
@@ -284,6 +324,9 @@ class einarmigerbandit extends Actor {
          }
       }
       Spins--;
+      letztesSymbol1 = symbol1;
+      letztesSymbol2 = symbol2;
+      letztesSymbol3 = symbol3;
       UpdateSpins = true;
       Thread.sleep(250);
       amlaufen = false;
@@ -467,25 +510,19 @@ spin.setTextColor(0x000000);
 
 einarmigerbandit b = new einarmigerbandit();
 
-// GLUCCKSBRINGER ADDEN
-// b.glucksbringerAdden(1);
-
 void StartSound() {
    if (!b.startsound) return;
 
-    // Auftakt: schnelle Vorschläge
    Sound.playSound(Sound.pong_d); Thread.sleep(150);
    Sound.playSound(Sound.pong_d); Thread.sleep(150);
 
-    // Hauptthema
    Sound.playSound(Sound.pong_f); Thread.sleep(300);
    Sound.playSound(Sound.pong_d); Thread.sleep(200);
    Sound.playSound(Sound.pong_f); Thread.sleep(300);
-   Sound.playSound(Sound.pong_f); Thread.sleep(500); // betont
+   Sound.playSound(Sound.pong_f); Thread.sleep(500); 
 
-    // Abschluss
    Sound.playSound(Sound.pong_d); Thread.sleep(200);
-   Sound.playSound(Sound.pong_f); Thread.sleep(600); // langer Schluss
+   Sound.playSound(Sound.pong_f); Thread.sleep(600); 
 
    b.startsound = false;
 }
@@ -583,10 +620,7 @@ void updateSpins() {
 
 
 
-
-b.glucksbringerAdden(1);
-
-b.glucksbringerAdden(2);
+b.glucksbringerAdden(3);
 
 
 void SagenSieEsNichtDochIchSageTrier_Sound() {
@@ -672,6 +706,33 @@ void glucksbringerEingesetztAN(String g) {
    Headbar.setX(400);
 }
 
+int letzterSpin = 0;
+
+void zeroKelvinAnimation(int slot) {
+   if (slot == 1) {
+      Slot1.setBorderColor(0x1b6eff);
+      Slot1.setFillColor(0x47e3ff);
+   }
+   else if (slot == 2) {
+      Slot2.setBorderColor(0x1b6eff);
+      Slot2.setFillColor(0x47e3ff);
+   }
+   else if (slot == 3) {
+      Slot3.setBorderColor(0x1b6eff);
+      Slot3.setFillColor(0x47e3ff);
+   }
+   int i = 0;
+   while (i <= 2) {
+      i++;
+      Sound.playSound(Sound.laser_shoot);
+      Thread.sleep(1);
+      Sound.playSound(Sound.pong_f);
+   }
+   Thread.sleep(250);
+   glucksbringerEingesetztAN("0 Kelvin");
+   letzterSpin = b.Spins;
+   Thread.sleep(10);
+}
 
 while (true) {
    
@@ -712,10 +773,24 @@ while (true) {
    }
    if (b.DyatlowCarried == true) {
       b.DyatlowCarried = false;
-      b.geld = b.geld + 3.6;
+      b.geld = b.geld + 36;
       b.UpdateText = true;
       glucksbringerEingesetztAN("Dyatlow");
       b.anzahlDerGewinne = 0;
-      
+   }
+   if (b.zeroKelvinSlot > 0) {
+      zeroKelvinAnimation(b.zeroKelvinSlot);
+      b.zeroKelvinSlot = 0;
+   }
+   if (b.ZeroKelvinVerwendet) {
+      if ((letzterSpin) != b.Spins) {
+         b.ZeroKelvinVerwendet = false;
+         Slot1.setBorderColor(0x000000);
+         Slot1.setFillColor(0xffffff);
+         Slot2.setBorderColor(0x000000);
+         Slot2.setFillColor(0xffffff);
+         Slot3.setBorderColor(0x000000);
+         Slot3.setFillColor(0xffffff);
+      }
    }
 }
